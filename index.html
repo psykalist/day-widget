@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="theme-color" content="#0d0d0d">
+  <title>Day</title>
+  <link rel="manifest" href="manifest.json">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Mono:wght@400;700&display=swap');
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0d0d0d;
+      --card: #141414;
+      --accent: #e8ff47;
+      --text: #f0f0f0;
+      --muted: #555;
+      --radius: 18px;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      background: var(--bg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Space Mono', monospace;
+      overflow: hidden;
+      touch-action: manipulation;
+    }
+
+    .widget {
+      width: min(320px, 90vw);
+      height: min(160px, 45vw);
+      background: var(--card);
+      border-radius: var(--radius);
+      border: 1px solid #222;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 28px;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+      box-shadow: 0 8px 40px rgba(0,0,0,0.6);
+      transition: transform 0.12s ease, box-shadow 0.12s ease;
+    }
+
+    /* Subtle grid texture */
+    .widget::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(255,255,255,0.015) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.015) 1px, transparent 1px);
+      background-size: 20px 20px;
+      pointer-events: none;
+    }
+
+    /* Accent glow blob */
+    .widget::after {
+      content: '';
+      position: absolute;
+      top: -40px;
+      right: -30px;
+      width: 120px;
+      height: 120px;
+      background: radial-gradient(circle, rgba(232,255,71,0.12) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .widget:active {
+      transform: scale(0.97);
+      box-shadow: 0 4px 20px rgba(0,0,0,0.8);
+    }
+
+    .widget.speaking {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 1px var(--accent), 0 8px 40px rgba(232,255,71,0.15);
+    }
+
+    .left {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      z-index: 1;
+    }
+
+    .label {
+      font-family: 'Space Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.2em;
+      color: var(--muted);
+      text-transform: uppercase;
+    }
+
+    .day-name {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(44px, 12vw, 72px);
+      color: var(--text);
+      line-height: 1;
+      letter-spacing: 0.02em;
+      transition: color 0.2s ease;
+    }
+
+    .widget.speaking .day-name {
+      color: var(--accent);
+    }
+
+    .right {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      z-index: 1;
+    }
+
+    .speak-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: #1e1e1e;
+      border: 1px solid #2a2a2a;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s, border-color 0.2s;
+    }
+
+    .widget.speaking .speak-icon {
+      background: var(--accent);
+      border-color: var(--accent);
+    }
+
+    .speak-icon svg {
+      width: 20px;
+      height: 20px;
+      fill: #888;
+      transition: fill 0.2s;
+    }
+
+    .widget.speaking .speak-icon svg {
+      fill: #0d0d0d;
+    }
+
+    /* Sound wave bars animation */
+    .bars {
+      display: flex;
+      align-items: center;
+      gap: 3px;
+      height: 16px;
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+
+    .widget.speaking .bars { opacity: 1; }
+
+    .bar {
+      width: 3px;
+      background: var(--accent);
+      border-radius: 2px;
+      animation: none;
+    }
+
+    .widget.speaking .bar:nth-child(1) { animation: bounce 0.5s 0.0s ease-in-out infinite alternate; }
+    .widget.speaking .bar:nth-child(2) { animation: bounce 0.5s 0.1s ease-in-out infinite alternate; }
+    .widget.speaking .bar:nth-child(3) { animation: bounce 0.5s 0.2s ease-in-out infinite alternate; }
+    .widget.speaking .bar:nth-child(4) { animation: bounce 0.5s 0.1s ease-in-out infinite alternate; }
+    .widget.speaking .bar:nth-child(5) { animation: bounce 0.5s 0.0s ease-in-out infinite alternate; }
+
+    @keyframes bounce {
+      from { height: 3px; }
+      to   { height: 16px; }
+    }
+
+    /* Ripple on tap */
+    .ripple {
+      position: absolute;
+      border-radius: 50%;
+      background: rgba(232,255,71,0.15);
+      transform: scale(0);
+      animation: ripple-out 0.5s ease-out forwards;
+      pointer-events: none;
+    }
+
+    @keyframes ripple-out {
+      to { transform: scale(4); opacity: 0; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="widget" id="widget" role="button" aria-label="Tap to hear today's day">
+  <div class="left">
+    <span class="label">Today is</span>
+    <div class="day-name" id="dayName">LOADING</div>
+  </div>
+  <div class="right">
+    <div class="speak-icon">
+      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>
+      </svg>
+    </div>
+    <div class="bars">
+      <div class="bar"></div>
+      <div class="bar"></div>
+      <div class="bar"></div>
+      <div class="bar"></div>
+      <div class="bar"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  const widget = document.getElementById('widget');
+  const dayName = document.getElementById('dayName');
+
+  function getDay() {
+    return days[new Date().getDay()];
+  }
+
+  dayName.textContent = getDay().toUpperCase();
+
+  function speakDay() {
+    if (!('speechSynthesis' in window)) {
+      alert('Text-to-speech not supported on this browser.');
+      return;
+    }
+    window.speechSynthesis.cancel();
+    const utter = new SpeechSynthesisUtterance('Today is ' + getDay());
+    utter.rate = 0.9;
+    utter.pitch = 1;
+    utter.volume = 1;
+
+    widget.classList.add('speaking');
+    utter.onend = () => widget.classList.remove('speaking');
+    utter.onerror = () => widget.classList.remove('speaking');
+
+    window.speechSynthesis.speak(utter);
+  }
+
+  function addRipple(e) {
+    const rect = widget.getBoundingClientRect();
+    const x = (e.touches ? e.touches[0].clientX : e.clientX) - rect.left;
+    const y = (e.touches ? e.touches[0].clientY : e.clientY) - rect.top;
+    const ripple = document.createElement('span');
+    ripple.className = 'ripple';
+    ripple.style.cssText = `left:${x}px;top:${y}px;width:60px;height:60px;margin-left:-30px;margin-top:-30px;`;
+    widget.appendChild(ripple);
+    ripple.addEventListener('animationend', () => ripple.remove());
+  }
+
+  widget.addEventListener('click', (e) => { addRipple(e); speakDay(); });
+  widget.addEventListener('touchstart', addRipple, { passive: true });
+
+  // Refresh day at midnight
+  function scheduleRefresh() {
+    const now = new Date();
+    const msToMidnight = new Date(now.getFullYear(), now.getMonth(), now.getDate()+1) - now;
+    setTimeout(() => { dayName.textContent = getDay().toUpperCase(); scheduleRefresh(); }, msToMidnight);
+  }
+  scheduleRefresh();
+</script>
+</body>
+</html>
