@@ -6,7 +6,7 @@
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="theme-color" content="#0d0d0d">
+  <meta name="theme-color" content="#0a0a0a">
   <title>Day</title>
   <link rel="manifest" href="manifest.json">
   <style>
@@ -15,11 +15,12 @@
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --bg: #0d0d0d;
-      --card: #141414;
-      --accent: #e8ff47;
-      --text: #f0f0f0;
-      --muted: #555;
+      --bg: #0a0a0a;
+      --card: #161616;
+      --accent: #ffef00;
+      --accent2: #00e5ff;
+      --text: #ffffff;
+      --muted: #777;
       --radius: 18px;
     }
 
@@ -36,84 +37,97 @@
     }
 
     .widget {
-      width: min(320px, 90vw);
-      height: min(160px, 45vw);
+      width: min(340px, 92vw);
+      height: min(170px, 48vw);
       background: var(--card);
       border-radius: var(--radius);
-      border: 1px solid #222;
+      border: 1px solid #2a2a2a;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 0 28px;
+      padding: 0 26px;
       cursor: pointer;
       position: relative;
       overflow: hidden;
       user-select: none;
       -webkit-tap-highlight-color: transparent;
-      box-shadow: 0 8px 40px rgba(0,0,0,0.6);
+      box-shadow: 0 8px 40px rgba(0,0,0,0.7);
       transition: transform 0.12s ease, box-shadow 0.12s ease;
     }
 
-    /* Subtle grid texture */
     .widget::before {
       content: '';
       position: absolute;
       inset: 0;
       background-image:
-        linear-gradient(rgba(255,255,255,0.015) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255,255,255,0.015) 1px, transparent 1px);
+        linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
       background-size: 20px 20px;
       pointer-events: none;
     }
 
-    /* Accent glow blob */
     .widget::after {
       content: '';
       position: absolute;
-      top: -40px;
-      right: -30px;
-      width: 120px;
-      height: 120px;
-      background: radial-gradient(circle, rgba(232,255,71,0.12) 0%, transparent 70%);
+      top: -50px;
+      right: -40px;
+      width: 160px;
+      height: 160px;
+      background: radial-gradient(circle, rgba(255,239,0,0.18) 0%, transparent 70%);
       pointer-events: none;
     }
 
     .widget:active {
       transform: scale(0.97);
-      box-shadow: 0 4px 20px rgba(0,0,0,0.8);
+      box-shadow: 0 4px 20px rgba(0,0,0,0.9);
     }
 
     .widget.speaking {
       border-color: var(--accent);
-      box-shadow: 0 0 0 1px var(--accent), 0 8px 40px rgba(232,255,71,0.15);
+      box-shadow: 0 0 0 1.5px var(--accent), 0 8px 40px rgba(255,239,0,0.2);
     }
 
     .left {
       display: flex;
       flex-direction: column;
-      gap: 4px;
+      gap: 2px;
       z-index: 1;
     }
 
     .label {
       font-family: 'Space Mono', monospace;
-      font-size: 10px;
-      letter-spacing: 0.2em;
+      font-size: 9px;
+      letter-spacing: 0.25em;
       color: var(--muted);
       text-transform: uppercase;
     }
 
     .day-name {
       font-family: 'Bebas Neue', sans-serif;
-      font-size: clamp(44px, 12vw, 72px);
-      color: var(--text);
+      font-size: clamp(48px, 13vw, 78px);
+      color: var(--accent);
       line-height: 1;
       letter-spacing: 0.02em;
-      transition: color 0.2s ease;
+      text-shadow: 0 0 30px rgba(255,239,0,0.4);
+      transition: color 0.2s ease, text-shadow 0.2s ease;
     }
 
     .widget.speaking .day-name {
-      color: var(--accent);
+      color: #fff;
+      text-shadow: 0 0 30px rgba(255,239,0,0.8);
+    }
+
+    .date-line {
+      font-family: 'Space Mono', monospace;
+      font-size: clamp(10px, 2.8vw, 13px);
+      color: var(--accent2);
+      letter-spacing: 0.08em;
+      margin-top: 4px;
+      opacity: 0.9;
+    }
+
+    .widget.speaking .date-line {
+      opacity: 1;
     }
 
     .right {
@@ -125,34 +139,34 @@
     }
 
     .speak-icon {
-      width: 44px;
-      height: 44px;
+      width: 46px;
+      height: 46px;
       border-radius: 50%;
-      background: #1e1e1e;
-      border: 1px solid #2a2a2a;
+      background: #222;
+      border: 1.5px solid #333;
       display: flex;
       align-items: center;
       justify-content: center;
-      transition: background 0.2s, border-color 0.2s;
+      transition: background 0.2s, border-color 0.2s, box-shadow 0.2s;
     }
 
     .widget.speaking .speak-icon {
       background: var(--accent);
       border-color: var(--accent);
+      box-shadow: 0 0 16px rgba(255,239,0,0.5);
     }
 
     .speak-icon svg {
       width: 20px;
       height: 20px;
-      fill: #888;
+      fill: #999;
       transition: fill 0.2s;
     }
 
     .widget.speaking .speak-icon svg {
-      fill: #0d0d0d;
+      fill: #0a0a0a;
     }
 
-    /* Sound wave bars animation */
     .bars {
       display: flex;
       align-items: center;
@@ -166,9 +180,9 @@
 
     .bar {
       width: 3px;
+      height: 3px;
       background: var(--accent);
       border-radius: 2px;
-      animation: none;
     }
 
     .widget.speaking .bar:nth-child(1) { animation: bounce 0.5s 0.0s ease-in-out infinite alternate; }
@@ -182,27 +196,27 @@
       to   { height: 16px; }
     }
 
-    /* Ripple on tap */
     .ripple {
       position: absolute;
       border-radius: 50%;
-      background: rgba(232,255,71,0.15);
+      background: rgba(255,239,0,0.12);
       transform: scale(0);
-      animation: ripple-out 0.5s ease-out forwards;
+      animation: ripple-out 0.55s ease-out forwards;
       pointer-events: none;
     }
 
     @keyframes ripple-out {
-      to { transform: scale(4); opacity: 0; }
+      to { transform: scale(5); opacity: 0; }
     }
   </style>
 </head>
 <body>
 
-<div class="widget" id="widget" role="button" aria-label="Tap to hear today's day">
+<div class="widget" id="widget" role="button" aria-label="Tap to hear today's day and date">
   <div class="left">
-    <span class="label">Today is</span>
-    <div class="day-name" id="dayName">LOADING</div>
+    <span class="label">Today</span>
+    <div class="day-name" id="dayName">---</div>
+    <div class="date-line" id="dateLine">--- -- ---</div>
   </div>
   <div class="right">
     <div class="speak-icon">
@@ -221,31 +235,48 @@
 </div>
 
 <script>
-  const days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
-  const widget = document.getElementById('widget');
-  const dayName = document.getElementById('dayName');
+  const days   = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  const months = ['January','February','March','April','May','June',
+                  'July','August','September','October','November','December'];
+  const monthsShort = ['Jan','Feb','Mar','Apr','May','Jun',
+                       'Jul','Aug','Sep','Oct','Nov','Dec'];
 
-  function getDay() {
-    return days[new Date().getDay()];
+  const widget   = document.getElementById('widget');
+  const dayName  = document.getElementById('dayName');
+  const dateLine = document.getElementById('dateLine');
+
+  function getOrdinal(n) {
+    const s = ['th','st','nd','rd'];
+    const v = n % 100;
+    return n + (s[(v-20)%10] || s[v] || s[0]);
   }
 
-  dayName.textContent = getDay().toUpperCase();
+  function updateDisplay() {
+    const now = new Date();
+    dayName.textContent  = days[now.getDay()].toUpperCase();
+    dateLine.textContent = getOrdinal(now.getDate()) + ' ' + monthsShort[now.getMonth()];
+  }
 
-  function speakDay() {
+  function speakDate() {
     if (!('speechSynthesis' in window)) {
       alert('Text-to-speech not supported on this browser.');
       return;
     }
+    const now  = new Date();
+    const dow  = days[now.getDay()];
+    const d    = now.getDate();
+    const mon  = months[now.getMonth()];
+    const text = 'Today is ' + dow + ', the ' + getOrdinal(d) + ' of ' + mon;
+
     window.speechSynthesis.cancel();
-    const utter = new SpeechSynthesisUtterance('Today is ' + getDay());
-    utter.rate = 0.9;
-    utter.pitch = 1;
+    const utter = new SpeechSynthesisUtterance(text);
+    utter.rate   = 0.9;
+    utter.pitch  = 1;
     utter.volume = 1;
 
     widget.classList.add('speaking');
-    utter.onend = () => widget.classList.remove('speaking');
+    utter.onend   = () => widget.classList.remove('speaking');
     utter.onerror = () => widget.classList.remove('speaking');
-
     window.speechSynthesis.speak(utter);
   }
 
@@ -260,14 +291,15 @@
     ripple.addEventListener('animationend', () => ripple.remove());
   }
 
-  widget.addEventListener('click', (e) => { addRipple(e); speakDay(); });
+  updateDisplay();
+
+  widget.addEventListener('click', (e) => { addRipple(e); speakDate(); });
   widget.addEventListener('touchstart', addRipple, { passive: true });
 
-  // Refresh day at midnight
   function scheduleRefresh() {
     const now = new Date();
     const msToMidnight = new Date(now.getFullYear(), now.getMonth(), now.getDate()+1) - now;
-    setTimeout(() => { dayName.textContent = getDay().toUpperCase(); scheduleRefresh(); }, msToMidnight);
+    setTimeout(() => { updateDisplay(); scheduleRefresh(); }, msToMidnight);
   }
   scheduleRefresh();
 </script>
